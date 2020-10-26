@@ -194,11 +194,12 @@ export default class extends Vue {
   private handleLogin() {
     (this.$refs.loginForm as ElForm).validate(async(valid: boolean) => {
       if (valid) {
-        debugger
         this.loading = true
-        await UserModule.Login(this.loginForm)
-        debugger
-        this.loading = false
+        try {
+          await UserModule.Login(this.loginForm)
+        } catch (err) {
+          this.loading = false
+        }
         console.log(this.redirect)
         console.log(this.otherQuery)
         await this.$router.push({
