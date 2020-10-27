@@ -115,12 +115,12 @@
 </template>
 
 <script lang="ts">
-  import path from 'path'
-  import { cloneDeep } from 'lodash'
-  import { Component, Vue } from 'vue-property-decorator'
-  import { RouteConfig } from 'vue-router'
-  import { Tree } from 'element-ui'
-  import { getRoutes, getRoles, createRole, deleteRole, updateRole } from '@/api/roles'
+import path from 'path'
+import { cloneDeep } from 'lodash'
+import { Component, Vue } from 'vue-property-decorator'
+import { RouteConfig } from 'vue-router'
+import { Tree } from 'element-ui'
+import { getRoutes, getRoles, createRole, deleteRole, updateRole } from '@/api/roles'
 
   interface IRole {
     key: number
@@ -135,17 +135,17 @@
     path: string
   }
 
-  const defaultRole: IRole = {
-    key: 0,
-    name: '',
-    description: '',
-    routes: []
-  }
+const defaultRole: IRole = {
+  key: 0,
+  name: '',
+  description: '',
+  routes: []
+}
 
   @Component({
     name: 'RolePermission'
   })
-  export default class extends Vue {
+export default class extends Vue {
     private role = Object.assign({}, defaultRole)
     private reshapedRoutes: RouteConfig[] = []
     private serviceRoutes: RouteConfig[] = []
@@ -163,7 +163,6 @@
     }
 
     created() {
-      // Mock: get all routes and roles list from server
       this.getRoutes()
       this.getRoles()
     }
@@ -176,7 +175,7 @@
 
     private async getRoles() {
       const { data } = await getRoles({ /* Your params here */ })
-      this.rolesList = data.items
+      this.rolesList = data
     }
 
     private generateTreeData(routes: RouteConfig[]) {
@@ -346,7 +345,7 @@
       }
       return false
     }
-  }
+}
 </script>
 
 <style lang="scss" scoped>
