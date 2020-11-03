@@ -121,19 +121,20 @@ import { Component, Vue } from 'vue-property-decorator'
 import { RouteConfig } from 'vue-router'
 import { Tree } from 'element-ui'
 import { getRoutes, getRoles, createRole, deleteRole, updateRole } from '@/api/roles'
+import { formatRoutes } from '@/store/modules/permission'
 
-  interface IRole {
-    key: number
-    name: string
-    description: string
-    routes: RouteConfig[]
-  }
+interface IRole {
+  key: number
+  name: string
+  description: string
+  routes: RouteConfig[]
+}
 
-  interface IRoutesTreeData {
-    children: IRoutesTreeData[]
-    title: string
-    path: string
-  }
+interface IRoutesTreeData {
+  children: IRoutesTreeData[]
+  title: string
+  path: string
+}
 
 const defaultRole: IRole = {
   key: 0,
@@ -142,9 +143,9 @@ const defaultRole: IRole = {
   routes: []
 }
 
-  @Component({
-    name: 'RolePermission'
-  })
+@Component({
+  name: 'RolePermission'
+})
 export default class extends Vue {
     private role = Object.assign({}, defaultRole)
     private reshapedRoutes: RouteConfig[] = []
@@ -168,9 +169,10 @@ export default class extends Vue {
     }
 
     private async getRoutes() {
-      const { data } = await getRoutes({ /* Your params here */ })
-      this.serviceRoutes = data.routes
-      this.reshapedRoutes = this.reshapeRoutes(data.routes)
+      let { data } = await getRoutes({ /* Your params here */ })
+      this.serviceRoutes = data
+      data = formatRoutes(data)
+      this.reshapedRoutes = this.reshapeRoutes(data)
     }
 
     private async getRoles() {
@@ -198,6 +200,7 @@ export default class extends Vue {
 
     // Reshape the routes structure so that it looks the same as the sidebar
     private reshapeRoutes(routes: RouteConfig[], basePath = '/') {
+      debugger
       const reshapedRoutes: RouteConfig[] = []
       for (let route of routes) {
         // Skip hidden routes
@@ -250,9 +253,12 @@ export default class extends Vue {
       this.dialogType = 'edit'
       this.dialogVisible = true
       this.checkStrictly = true
+      debugger
       this.role = cloneDeep(scope.row)
+      // 编辑弹窗DOM渲染完成后，设置菜单树的选中状态
       this.$nextTick(() => {
-        const routes = this.flattenRoutes(this.reshapeRoutes(this.role.routes))
+        let routes = formatRoutes(this.role.routes)
+        routes = this.flattenRoutes(this.reshapeRoutes(routes))
         const treeData = this.generateTreeData(routes)
         const treeDataKeys = treeData.map(t => t.path);
         (this.$refs.tree as Tree).setCheckedKeys(treeDataKeys)
@@ -301,7 +307,7 @@ export default class extends Vue {
       this.role.routes = this.generateTree(cloneDeep(this.serviceRoutes), '/', checkedKeys)
 
       if (isEdit) {
-        await updateRole(this.role.key, { role: this.role })
+        await updateRole(this.role.key, this.role)
         for (let index = 0; index < this.rolesList.length; index++) {
           if (this.rolesList[index].key === this.role.key) {
             this.rolesList.splice(index, 1, Object.assign({}, this.role))

@@ -30,6 +30,9 @@ export const filterAsyncRoutes = (routes: RouteConfig[], roles: string[]) => {
 }
 
 export const formatRoutes = (data: any[]) => {
+  if (!data) {
+    data = []
+  }
   let fmtRoutes: RouteConfig[] = []
   data.forEach(item => {
     if (item.children) {
@@ -50,7 +53,7 @@ export const formatRoutes = (data: any[]) => {
     };
     fmtRoutes.push(fmtRoute);
   });
-  return fmtRoutes;
+  return fmtRoutes
 };
 
 export interface IPermissionState {
